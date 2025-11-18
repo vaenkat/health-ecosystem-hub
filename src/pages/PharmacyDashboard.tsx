@@ -4,12 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Pill, Package, AlertTriangle, TrendingUp, Settings, LogOut } from "lucide-react";
+import { Pill, Package, AlertTriangle, TrendingUp, LogOut } from "lucide-react";
 
 const PharmacyDashboard = () => {
   const navigate = useNavigate();
@@ -19,7 +16,6 @@ const PharmacyDashboard = () => {
   const [stats, setStats] = useState({ totalItems: 0, lowStock: 0, urgentOrders: 0 });
   const [inventory, setInventory] = useState<any[]>([]);
   const [urgentOrders, setUrgentOrders] = useState<any[]>([]);
-  const [aiApiKey, setAiApiKey] = useState("");
 
   useEffect(() => {
     checkUser();
@@ -106,40 +102,10 @@ const PharmacyDashboard = () => {
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>AI Service Configuration</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="api-key">AI Service API Key</Label>
-                    <Input
-                      id="api-key"
-                      type="password"
-                      placeholder="Enter your API key"
-                      value={aiApiKey}
-                      onChange={(e) => setAiApiKey(e.target.value)}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Add your API key to enable AI demand prediction features
-                    </p>
-                  </div>
-                  <Button className="w-full">Save Configuration</Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-            <Button variant="outline" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
+          <Button variant="outline" onClick={handleSignOut}>
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
         </div>
       </div>
 

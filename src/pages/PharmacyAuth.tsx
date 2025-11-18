@@ -8,6 +8,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Pill, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+const signupSchema = z.object({
+  email: z.string().email("Invalid email address").max(255, "Email too long"),
+  password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password too long"),
+  fullName: z.string().trim().min(1, "Name is required").max(100, "Name too long"),
+});
+
+const signinSchema = z.object({
+  email: z.string().email("Invalid email address").max(255, "Email too long"),
+  password: z.string().min(1, "Password is required"),
+});
 
 const PharmacyAuth = () => {
   const navigate = useNavigate();
@@ -32,13 +44,20 @@ const PharmacyAuth = () => {
     setIsLoading(true);
 
     try {
+      const validation = signupSchema.safeParse({ email, password, fullName });
+      if (!validation.success) {
+        const firstError = validation.error.errors[0];
+        throw new Error(firstError.message);
+      }
+
       const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: validation.data.email,
+        password: validation.data.password,
         options: {
           emailRedirectTo: `${window.location.origin}/pharmacy/dashboard`,
           data: {
-            full_name: fullName,
+            full_name: validation.data.fullName,
+            intended_role: "pharmacy_staff",
           },
         },
       });
@@ -46,11 +65,6 @@ const PharmacyAuth = () => {
       if (error) throw error;
 
       if (data.user) {
-        await supabase.from("user_roles").insert({
-          user_id: data.user.id,
-          role: "pharmacy_staff",
-        });
-
         toast({
           title: "Account created!",
           description: "Welcome to the pharmacy portal.",
@@ -73,9 +87,15 @@ const PharmacyAuth = () => {
     setIsLoading(true);
 
     try {
+      const validation = signinSchema.safeParse({ email, password });
+      if (!validation.success) {
+        const firstError = validation.error.errors[0];
+        throw new Error(firstError.message);
+      }
+
       const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: validation.data.email,
+        password: validation.data.password,
       });
 
       if (error) throw error;

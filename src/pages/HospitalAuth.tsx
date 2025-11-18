@@ -73,9 +73,15 @@ const HospitalAuth = () => {
     setIsLoading(true);
 
     try {
+      const validation = signinSchema.safeParse({ email, password });
+      if (!validation.success) {
+        const firstError = validation.error.errors[0];
+        throw new Error(firstError.message);
+      }
+
       const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: validation.data.email,
+        password: validation.data.password,
       });
 
       if (error) throw error;
